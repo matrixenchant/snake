@@ -1,6 +1,7 @@
 import pygame
 
-from library.views import StartGame, Accounts, WinPopup, DefeatPopup, NewAccount, Levels, Level1
+from library.views import StartGame, Accounts, WinPopup, DefeatPopup, NewAccount, Levels
+from library.levels import Level1, Level2, Level3
 from library.db import db
 from library.Controller import Controller
 
@@ -9,6 +10,7 @@ db.init()
 # CONFIG
 WIDTH = 800
 HEIGHT = 600
+FPS = 60
 CAPTION = "Mad Snake"
 WHITE = (255, 255, 255)
 
@@ -26,7 +28,6 @@ clock = pygame.time.Clock()
 controller = Controller(startView='start', config={
     'WIDTH': WIDTH,
     'HEIGHT': HEIGHT,
-    'FPS': 160,
     'SCORE_TARGET': 2
 })
 
@@ -35,19 +36,15 @@ controller.setViews([
     Accounts('users', controller),
     NewAccount('newUser', controller),
     Levels('levels', controller),
-    Level1('level1', controller),
+    Level1('level1', 1, controller),
+    Level2('level2', 2, controller),
+    Level3('level3', 3, controller),
 ])
 
-controller.setPopups({
-    'win': WinPopup(controller),
-    'defeat': DefeatPopup(controller)
-})
-
-
-#                            active_view relations
-
-#   1         2          3          4         5         6           7         8
-# intro   accounts  add_account   levels   level1     level2     level3     level4
+controller.setPopups([
+    WinPopup('win', controller),
+    DefeatPopup('defeat', controller),
+])
 
 # CYCLE
 while running:
@@ -55,7 +52,7 @@ while running:
     # Events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-                running = False
+            running = False
        
         controller.events(event)
 
@@ -68,7 +65,8 @@ while running:
     controller.render(screen)
 
     pygame.display.flip()
-    clock.tick(controller.fps)
+    clock.tick(FPS)
 
 
 db.close()
+# figma.getNodeById(figma.activeUsers[0].selection).children.map(x => `pygame.Rect(${x.x}, ${x.y}, ${x.width}, ${x.height}),`).join('\n')

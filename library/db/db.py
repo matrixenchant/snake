@@ -15,7 +15,7 @@ conn = None
 def init():
     global tables, conn
     try:
-        conn = sqlite3.connect('database.db')
+        conn = sqlite3.connect('./database.db')
 
         # create tables
         cur = conn.cursor()

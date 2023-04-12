@@ -98,11 +98,16 @@ class Button:
         self.image = image
         self.hover_image = hover_image
         self.active_image = active_image
-        self.isHover = False
-        self.isPressed = False
+
         self.onClick = onClick
 
+        self.isHover = False
+        self.isPressed = False
+        self.isDisabled = False
+
     def events(self, event, params = {}):
+        if self.isDisabled: return
+        
         if self.rect.collidepoint(pygame.mouse.get_pos()):
             self.isHover = True
 
@@ -122,8 +127,20 @@ class Button:
         if (self.isPressed and self.active_image): image = self.active_image
         screen.blit(get_image(image), self.rect)
 
-class AnimatedObject:
-    def __init__(self, x, y, path, framesNumber, animationSpeed, loop = False):
+class Object:
+    def __init__(self, x, y, image):
+        self.x = x
+        self.y = y
+        self.image = image
+
+    def update(self): pass
+
+    def render(self, screen):
+        screen.blit(get_image(self.image), (self.x, self.y))
+
+class AnimatedObject(pygame.sprite.Sprite):
+    def __init__(self, x, y, path, framesNumber, animationSpeed, loop = False, isForward = False):
+        pygame.sprite.Sprite.__init__(self)
         self.x = x
         self.y = y
         self.path = path
@@ -131,13 +148,15 @@ class AnimatedObject:
         self.frames = []
         self.active_frame = 1
         self.loop = loop
+
+        self.isForward = isForward
         self.isReverse = False
 
         for i in range(1, framesNumber+1):
             frame = get_image(f"assets/{path}/{i}.png")
             self.frames.append(frame)
 
-    def update(self, screen):
+    def update(self):
 
         if self.loop:
             if self.isReverse: self.active_frame -= 1 / self.animationSpeed
@@ -154,41 +173,54 @@ class AnimatedObject:
         else:
             self.active_frame += 1 / self.animationSpeed
             if (int(self.active_frame) > len(self.frames)):
-                self.active_frame = 1
+                if self.isForward: self.active_frame = 1
+                else: self.active_frame = len(self.frames)
 
+    def render(self, screen):
         screen.blit(self.frames[int(self.active_frame) - 1], (self.x, self.y))
-
 
 class ProjectileEmitter:
     def __init__(self, x, y, image, projectilesPath):
         self.x = x
         self.y = y
         self.shootSpeed = 100
-        self.projectiles = []
+
+        self.projectiles = pygame.sprite.Group()
         self.last = pygame.time.get_ticks()
-        self.cooldown = 1500
+        self.cooldown = 2500
         self.image = image
         self.projectilesPath = projectilesPath
 
-    def update(self, screen):
+    def update(self):
         now = pygame.time.get_ticks()
         if now - self.last >= self.cooldown:
             self.last = now
-            self.projectiles.append(Projectile(self.x + 20, self.y + 50, 'level3\projectile', 4, 20 ))
-        
+            proj = Projectile(self.x + 20, self.y + 50, 28, 17, 'level3\projectile', 4, 10 )
+            self.projectiles.add(proj)
 
         for pro in self.projectiles:
-            pro.update(screen)
+            pro.update()
 
+    def render(self, screen):
         screen.blit(self.image, (self.x, self.y))
+        for pro in self.projectiles:
+            pro.render(screen)
 
 class Projectile(AnimatedObject):
-    def __init__(self, x, y, path, framesNumber, animationSpeed, loop = False):
+    def __init__(self, x, y, width, height, path, framesNumber, animationSpeed, loop = False):
         self.speed = 3
+        self.width = width
+        self.height = height
         super().__init__(x, y, path, framesNumber, animationSpeed, loop)
 
-    def update(self, screen):
+    def update(self):
+        super().update()
         self.x -= self.speed
+        if self.x < -50: self.kill()
 
-        super().update(screen)
+    def render(self, screen):
+        super().render(screen)
+
+    def get_rect(self):
+        return pygame.Rect(self.x, self.y, self.width, self.height)
         

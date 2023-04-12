@@ -8,28 +8,44 @@ food_variants = [
 ]
 
 class Food(pygame.sprite.Sprite):
-    def __init__(self, snake, group, controller):
+    def __init__(self, group, controller, spawnArea):
         pygame.sprite.Sprite.__init__(self)
-        variant = food_variants[randint(0,1)]
-        self.snake = snake
-        self.width = 20
-        self.height = 25
-        self.image = pygame.image.load(variant[0])
-        self.rect = self.image.get_rect()
-        self.weight = variant[1]
-        self.add(group)
-        self.spawnTime = int(time.time())
-        self.spawn()
-        self.is_update = True
         self.controller = controller
 
-    def spawn(self):
-        x = randint(self.width+10, self.controller.config['WIDTH'] - self.width-10)
-        y = randint(50, self.controller.config['HEIGHT'] -self.height-10)
+        self.width = 20
+        self.height = 25
 
-        self.x = x
-        self.y = y
-        self.rect = self.image.get_rect(x = x, y = y)
+        self.spawnArea = spawnArea
+
+        variant = food_variants[randint(0,1)]
+        self.image = pygame.image.load(variant[0])
+        self.weight = variant[1]
+
+        self.rect = self.image.get_rect()
+        self.is_update = True
+        self.spawnTime = int(time.time())
+
+
+        self.add(group)
+        self.spawn()
+
+
+    def spawn(self):
+        x, y = 0, 0
+
+        if len(self.spawnArea):
+            rect = self.spawnArea[randint(0, len(self.spawnArea)-1)]
+            print(rect)
+            x = randint(rect.x, rect.x + rect.width - self.width)
+            y = randint(rect.y, rect.y + rect.height - self.height)
+        else:
+            x = randint(self.width+10, self.controller.config['WIDTH'] - self.width-10)
+            y = randint(50, self.controller.config['HEIGHT'] -self.height-10)
+            
+        
+
+        self.rect.x = x
+        self.rect.y = y
 
     def update(self):
         if not self.is_update: return
@@ -37,4 +53,4 @@ class Food(pygame.sprite.Sprite):
             self.kill()
 
     def get_rect(self):
-        return pygame.Rect(self.x, self.y, self.width, self.height)
+        return self.rect
