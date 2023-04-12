@@ -1,5 +1,7 @@
-import pygame
 from os import sep
+
+import pygame
+from time import sleep
 
 # Images
 _image_library = {}
@@ -25,6 +27,7 @@ def checkInSnake(parts, radius = 15, x = -1, y = -1):
 
 
 from configparser import ConfigParser
+
 
 def config(filename='database.ini', section='postgresql'):
     parser = ConfigParser()
@@ -89,12 +92,42 @@ class InputBox:
             pygame.draw.rect(screen, self.color, self.rect, 2)
 
 
+class Button:
+    def __init__(self, rect, image, hover_image = None, active_image = None, onClick = None):
+        self.rect = rect
+        self.image = image
+        self.hover_image = hover_image
+        self.active_image = active_image
+        self.isHover = False
+        self.isPressed = False
+        self.onClick = onClick
+
+    def events(self, event, params = {}):
+        if self.rect.collidepoint(pygame.mouse.get_pos()):
+            self.isHover = True
+
+            if event.type == pygame.MOUSEBUTTONUP and self.isPressed:
+                if (self.onClick is not None):
+                    self.onClick(params)
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                self.isPressed = True
+            else: self.isPressed = False
+
+        else: self.isHover = False
+
+    def render(self, screen):
+        image = self.image
+        if (self.isHover and self.hover_image): image = self.hover_image
+        if (self.isPressed and self.active_image): image = self.active_image
+        screen.blit(get_image(image), self.rect)
+
 class AnimatedObject:
-    def __init__(self, x, y, path, framesNumber, speed, loop = False):
+    def __init__(self, x, y, path, framesNumber, animationSpeed, loop = False):
         self.x = x
         self.y = y
         self.path = path
-        self.speed = speed
+        self.animationSpeed = animationSpeed
         self.frames = []
         self.active_frame = 1
         self.loop = loop
@@ -107,8 +140,8 @@ class AnimatedObject:
     def update(self, screen):
 
         if self.loop:
-            if self.isReverse: self.active_frame -= 1 / self.speed
-            else: self.active_frame += 1 / self.speed
+            if self.isReverse: self.active_frame -= 1 / self.animationSpeed
+            else: self.active_frame += 1 / self.animationSpeed
 
             if (int(self.active_frame) < 1):
                 self.isReverse = False
@@ -118,11 +151,44 @@ class AnimatedObject:
                 self.isReverse = True
                 self.active_frame = len(self.frames)
 
-            print(self.isReverse, int(self.active_frame))
-
         else:
-            self.active_frame += 1 / self.speed
+            self.active_frame += 1 / self.animationSpeed
             if (int(self.active_frame) > len(self.frames)):
                 self.active_frame = 1
 
         screen.blit(self.frames[int(self.active_frame) - 1], (self.x, self.y))
+
+
+class ProjectileEmitter:
+    def __init__(self, x, y, image, projectilesPath):
+        self.x = x
+        self.y = y
+        self.shootSpeed = 100
+        self.projectiles = []
+        self.last = pygame.time.get_ticks()
+        self.cooldown = 1500
+        self.image = image
+        self.projectilesPath = projectilesPath
+
+    def update(self, screen):
+        now = pygame.time.get_ticks()
+        if now - self.last >= self.cooldown:
+            self.last = now
+            self.projectiles.append(Projectile(self.x + 20, self.y + 50, 'level3\projectile', 4, 20 ))
+        
+
+        for pro in self.projectiles:
+            pro.update(screen)
+
+        screen.blit(self.image, (self.x, self.y))
+
+class Projectile(AnimatedObject):
+    def __init__(self, x, y, path, framesNumber, animationSpeed, loop = False):
+        self.speed = 3
+        super().__init__(x, y, path, framesNumber, animationSpeed, loop)
+
+    def update(self, screen):
+        self.x -= self.speed
+
+        super().update(screen)
+        

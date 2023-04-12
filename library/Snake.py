@@ -1,6 +1,33 @@
 import random
 import pygame
 
+STAGES = [
+    {
+        'name': 'EASY',
+        'colors': [(47, 131, 50),(31, 97, 34)]
+    },
+    {
+        'name': 'NORMAL',
+        'colors': [(221, 214, 53),(200, 194, 43)]
+    },
+    {
+        'name': 'HARD',
+        'colors': [(242, 186, 40),(222, 170, 37)]
+    },
+    {
+        'name': 'VERY_HARD',
+        'colors': [(218, 73, 42),(195, 62, 33)]
+    },
+    {
+        'name': 'INSANE',
+        'colors': [(219, 25, 25),(188, 20, 20)]
+    },
+    {
+        'name': 'IMPOSSIBLE',
+        'colors': [(0, 0, 0),(0, 0, 0)]
+    },
+]
+
 class Snake:
     def __init__(self, x, y):
         self.startPos = [x, y]
@@ -9,6 +36,7 @@ class Snake:
         self.radius = 10
         self.dx = 0
         self.dy = -1
+        self.stage = 0
         
         self.speed = 60
         self.offset_parts = 1
