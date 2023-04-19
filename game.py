@@ -1,7 +1,7 @@
 import pygame
 
 from library.views import StartGame, Accounts, WinPopup, DefeatPopup, NewAccount, Levels
-from library.levels import Level1, Level2, Level3
+from library.levels import Level1, Level2, Level3, Level4, Level5
 from library.db import db
 from library.Controller import Controller
 
@@ -39,6 +39,8 @@ controller.setViews([
     Level1('level1', 1, controller),
     Level2('level2', 2, controller),
     Level3('level3', 3, controller),
+    Level4('level4', 4, controller),
+    Level5('level5', 5, controller),
 ])
 
 controller.setPopups([

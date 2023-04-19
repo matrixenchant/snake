@@ -14,6 +14,11 @@ def get_image(path):
                 _image_library[path] = img
         return img
 
+def rotate(image, angle, x = 0, y = 0):
+    rotated_image = pygame.transform.rotate(image, angle)
+    new_rect = rotated_image.get_rect(center = image.get_rect(center = (x, y)).center)
+
+    return rotated_image
 
 def checkInSnake(parts, radius = 15, x = -1, y = -1):
         for p_x, p_y in parts:
@@ -139,7 +144,7 @@ class Object:
         screen.blit(get_image(self.image), (self.x, self.y))
 
 class AnimatedObject(pygame.sprite.Sprite):
-    def __init__(self, x, y, path, framesNumber, animationSpeed, loop = False, isForward = False):
+    def __init__(self, x, y, path, framesNumber, animationSpeed, loop = False, angle = 0, isForward = False):
         pygame.sprite.Sprite.__init__(self)
         self.x = x
         self.y = y
@@ -153,8 +158,9 @@ class AnimatedObject(pygame.sprite.Sprite):
         self.isReverse = False
 
         for i in range(1, framesNumber+1):
-            frame = get_image(f"assets/{path}/{i}.png")
+            frame = rotate(get_image(f"assets/{path}/{i}.png"), angle)
             self.frames.append(frame)
+            self.rect = frame.get_rect(x=x, y=y)
 
     def update(self):
 
@@ -173,11 +179,14 @@ class AnimatedObject(pygame.sprite.Sprite):
         else:
             self.active_frame += 1 / self.animationSpeed
             if (int(self.active_frame) > len(self.frames)):
-                if self.isForward: self.active_frame = 1
-                else: self.active_frame = len(self.frames)
+                if self.isForward: self.active_frame =  len(self.frames)
+                else: self.active_frame = 1
 
     def render(self, screen):
         screen.blit(self.frames[int(self.active_frame) - 1], (self.x, self.y))
+
+    def get_rect(self):
+        return self.rect
 
 class ProjectileEmitter:
     def __init__(self, x, y, image, projectilesPath):

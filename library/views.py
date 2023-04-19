@@ -214,9 +214,11 @@ class Levels(View):
         ]
         
         self.levels = [
-            Button(rect=pygame.Rect(104, 175, 150, 120), image='assets/levels/level1.png', onClick=lambda x: self.controller.changeView('level1') ),
-            Button(rect=pygame.Rect(294, 175, 150, 120), image='assets/levels/level2.png', onClick=lambda x: self.controller.changeView('level2') ),
-            Button(rect=pygame.Rect(484, 175, 150, 120), image='assets/levels/level3.png', onClick=lambda x: self.controller.changeView('level3') ),
+            Button(rect=pygame.Rect(134, 172, 150, 120), image='assets/levels/level1.png', onClick=lambda x: self.controller.changeView('level1') ),
+            Button(rect=pygame.Rect(325, 172, 150, 120), image='assets/levels/level2.png', onClick=lambda x: self.controller.changeView('level2') ),
+            Button(rect=pygame.Rect(516, 172, 150, 120), image='assets/levels/level3.png', onClick=lambda x: self.controller.changeView('level3') ),
+            Button(rect=pygame.Rect(134, 312, 150, 120), image='assets/levels/level4.png', onClick=lambda x: self.controller.changeView('level4') ),
+            Button(rect=pygame.Rect(325, 312, 150, 120), image='assets/levels/level5.png', onClick=lambda x: self.controller.changeView('level5') ),
         ]
 
     def events(self, event):

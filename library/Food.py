@@ -1,10 +1,18 @@
 import pygame
 import time
-from random import randint
+from random import randint, choices, choice
+
+class FoodVariant:
+    def __init__(self, slug, image, weight, chance):
+        self.slug = slug
+        self.image = image
+        self.weight = weight
+        self.chance = chance
 
 food_variants = [
-    ['assets/food.png', 1],
-    ['assets/food2.png', 3]
+    FoodVariant('basic', 'assets/food1.png', 1, 50),
+    FoodVariant('super', 'assets/food2.png', 3, 30),
+    FoodVariant('ghost', 'assets/food-ghost.png', 1, 20),
 ]
 
 class Food(pygame.sprite.Sprite):
@@ -14,17 +22,13 @@ class Food(pygame.sprite.Sprite):
 
         self.width = 20
         self.height = 25
-
+        self.image = None
+        self.weight = 0
+        self.slug = ''
         self.spawnArea = spawnArea
 
-        variant = food_variants[randint(0,1)]
-        self.image = pygame.image.load(variant[0])
-        self.weight = variant[1]
-
-        self.rect = self.image.get_rect()
         self.is_update = True
         self.spawnTime = int(time.time())
-
 
         self.add(group)
         self.spawn()
@@ -33,19 +37,32 @@ class Food(pygame.sprite.Sprite):
     def spawn(self):
         x, y = 0, 0
 
+        basic_variants = food_variants[:2]
+        chances = list(map(lambda x: x.chance, basic_variants))
+        variant = choices(basic_variants, weights=chances)[0]
+
         if len(self.spawnArea):
-            rect = self.spawnArea[randint(0, len(self.spawnArea)-1)]
-            print(rect)
+            rect = choice(self.spawnArea)
+
+            if type(rect) is tuple:
+                variant = self.getVariantBySlug(rect[1])
+                rect = rect[0]
+
             x = randint(rect.x, rect.x + rect.width - self.width)
             y = randint(rect.y, rect.y + rect.height - self.height)
         else:
             x = randint(self.width+10, self.controller.config['WIDTH'] - self.width-10)
-            y = randint(50, self.controller.config['HEIGHT'] -self.height-10)
-            
-        
+            y = randint(50, self.controller.config['HEIGHT'] - self.height-10)
 
-        self.rect.x = x
-        self.rect.y = y
+        self.image = pygame.image.load(variant.image)
+        self.weight = variant.weight
+        self.slug = variant.slug
+            
+        self.rect = self.image.get_rect(x=x, y=y)
+
+    def getVariantBySlug(self, slug):
+        for var in food_variants:
+            if var.slug == slug: return var
 
     def update(self):
         if not self.is_update: return

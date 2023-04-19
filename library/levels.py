@@ -38,6 +38,9 @@ class Level(View):
     def onLoad(self):
         self.restart()
 
+    def isWin(self):
+        return self.snake.stage == len(self.snake.stages)-1
+
     def restart(self):
         self.__init__(self.slug, self.level, self.controller)
 
@@ -79,17 +82,20 @@ class Level(View):
 
             # Check collide with level obstacles
             obsCollide = pygame.Rect.collidelist(self.snake.get_rect(), self.obstacles)
-            if obsCollide != -1:
+            if obsCollide != -1 and not self.snake.isGhost:
                 self.snake.isCollide = True
 
             # Check collide snake with food
             foodCollide = pygame.Rect.collidelist(self.snake.get_rect(), [x.get_rect() for x in self.foods.sprites()])
             if foodCollide != -1:
-                sprite = self.foods.sprites()[foodCollide]
+                food = self.foods.sprites()[foodCollide]
                 self.snake.grow()
-                self.score += sprite.weight
-                self.foods.remove(sprite)
+                self.score += food.weight
+                self.foods.remove(food)
                 Food(self.foods, self.controller, self.foodArea)
+
+                if food.slug == 'ghost':
+                    self.snake.giveGhostEffect()
 
             # If snake collide
             if self.snake.isCollide:
@@ -99,7 +105,7 @@ class Level(View):
             # Change stage
             if self.score != 0 and self.score >= (self.snake.stage+1) * self.controller.config['SCORE_TARGET']:
                 # win stage
-                if self.snake.stage == len(self.snake.stages)-1:
+                if self.isWin():
                     self.controller.win()
                     self.snake.stop()
                     self.pause()
@@ -249,3 +255,69 @@ class Level3(Level):
         self.emitter.render(screen)
 
 
+class Level4(Level):
+    def __init__(self, slug, level, controller):
+        super().__init__(slug, level, controller)
+        
+        self.snake = Snake(101, 450)
+        self.background = get_image('assets/level4/back.png')
+
+
+        self.foodArea = [
+            (pygame.Rect(599, 420, 141, 102), 'ghost'),
+            (pygame.Rect(79, 200, 145, 102), 'ghost'),
+            pygame.Rect(79, 318, 304, 196),
+            pygame.Rect(477, 232, 250, 178),
+        ]
+        self.obstacles = [
+            pygame.Rect(401, 173, 46, 400),
+            pygame.Rect(764, 0, 36, 573),
+            pygame.Rect(0, 173, 40, 400),
+            pygame.Rect(0, 0, 764, 173),
+            pygame.Rect(0, 573, 800, 27),
+            pygame.Rect(488, 485, 61, 15),
+            pygame.Rect(685, 197, 56, 18),
+            pygame.Rect(477, 200, 79, 15),
+        ]
+        self.objects = [
+            Object(0, 533, 'assets/level4/bottom_wall.png'),
+            AnimatedObject(40, 106, 'level4/fire', 24, 5),
+        ]
+
+class Level5(Level):
+    def __init__(self, slug, level, controller):
+        super().__init__(slug, level, controller)
+
+        self.snake = Snake(101, 450)
+        self.background = get_image('assets/level5/back1.png')
+        self.objects = [
+            AnimatedObject(664, 71, 'level5/portal', 9, 5),
+        ]
+        self.stage = 1
+
+    def isWin(self):
+        return False
+    
+    @Level.baseUpdate
+    def update(self):
+        if self.stage == 1:
+            portalCollide = pygame.Rect.collidelist(self.snake.get_rect(), [pygame.Rect(707, 94, 34, 78)])
+            if portalCollide != -1:
+                self.stage = 2
+                self.snake.teleportTo(95, 124)
+                    
+                self.background = get_image('assets/level5/back2.png')
+                self.objects = [
+                    AnimatedObject(0, 67, 'level5/portal', 9, 5, angle=180),
+                ]
+        elif self.stage == 2:
+            portalCollide = pygame.Rect.collidelist(self.snake.get_rect(), [pygame.Rect(43, 88, 34, 78)])
+            if portalCollide != -1:                    
+                self.stage = 1
+                self.snake.teleportTo(695, 131)
+
+                self.background = get_image('assets/level5/back1.png')
+                self.objects = [
+                    AnimatedObject(664, 71, 'level5/portal', 9, 5),
+                ]
+            
