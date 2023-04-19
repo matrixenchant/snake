@@ -1,6 +1,6 @@
 import pygame
 from .views import View
-from .utils import get_image, AnimatedObject, ProjectileEmitter, Object
+from .utils import get_image, AnimatedObject, ProjectileEmitter, Object, Enemy
 
 from .Snake import Snake
 from .Food import Food
@@ -292,6 +292,7 @@ class Level5(Level):
         self.background = get_image('assets/level5/back1.png')
         self.objects = [
             AnimatedObject(664, 71, 'level5/portal', 9, 5),
+            Enemy(400, 200, 'level5/ship', 8, 4)
         ]
         self.stage = 1
 

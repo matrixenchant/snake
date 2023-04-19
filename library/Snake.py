@@ -120,7 +120,7 @@ class Snake:
                 if self.dx == -1: rot = 90
                 if self.dx == 1: rot = -90
 
-                screen.blit(rotate(get_image('assets/helmet.png'), rot), (x - size/2, y-size/2))
+                screen.blit(rotate(get_image('assets/helmet.png'), rot)[0], (x - size/2, y-size/2))
 
     def stop(self):
         self.isStopped = True

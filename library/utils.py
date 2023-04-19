@@ -1,6 +1,7 @@
 from os import sep
 
 import pygame
+from random import randint
 from time import sleep
 
 # Images
@@ -16,19 +17,20 @@ def get_image(path):
 
 def rotate(image, angle, x = 0, y = 0):
     rotated_image = pygame.transform.rotate(image, angle)
-    new_rect = rotated_image.get_rect(center = image.get_rect(center = (x, y)).center)
 
-    return rotated_image
+    new_rect = rotated_image.get_rect(center = image.get_rect(topleft = (x, y)).center)
+
+    return rotated_image, new_rect
 
 def checkInSnake(parts, radius = 15, x = -1, y = -1):
-        for p_x, p_y in parts:
-                if x != -1:
-                        if p_x - radius < x and x < p_x + radius:
-                                return True
-                if y != -1:
-                        if p_y - radius < y and y < p_y + radius:
-                                return True
-        return False
+    for p_x, p_y in parts:
+        if x != -1:
+            if p_x - radius < x and x < p_x + radius:
+                return True
+        if y != -1:
+            if p_y - radius < y and y < p_y + radius:
+                return True
+    return False
 
 
 from configparser import ConfigParser
@@ -153,12 +155,13 @@ class AnimatedObject(pygame.sprite.Sprite):
         self.frames = []
         self.active_frame = 1
         self.loop = loop
+        self.angle = angle
 
         self.isForward = isForward
         self.isReverse = False
 
         for i in range(1, framesNumber+1):
-            frame = rotate(get_image(f"assets/{path}/{i}.png"), angle)
+            frame, rect = rotate(get_image(f"assets/{path}/{i}.png"), self.angle)
             self.frames.append(frame)
             self.rect = frame.get_rect(x=x, y=y)
 
@@ -232,4 +235,47 @@ class Projectile(AnimatedObject):
 
     def get_rect(self):
         return pygame.Rect(self.x, self.y, self.width, self.height)
+
+import math
+class Enemy(AnimatedObject):
+    def __init__(self, x, y, path, framesNumber, animationSpeed, loop=False, angle=0, isForward=False):
+        super().__init__(x, y, path, framesNumber, animationSpeed, loop, angle, isForward)
+        self.angle = 0
+
+        self.angleTarget = 0
+        self.changeTargetDelay = randint(80, 100)
         
+        self.dx = 0
+        self.dy = 0
+        self.ticks = 0
+
+    def update(self):
+        super().update()
+
+        if self.y < 0 or self.x < 0:
+            print('Out -Y')
+            self.angle = 180-self.angle
+
+        # if self.ticks % self.changeTargetDelay == 0:
+        #     self.angleTarget = randint(0, 360)
+        #     self.changeTargetDelay = randint(80, 100)
+        
+        if self.angleTarget - self.angle > 0:
+            self.angle += 2
+        elif self.changeTargetDelay - self.angle < 0:
+            self.angle -= 2
+
+        self.dx = -round(math.sin(math.radians(self.angle)), 2)
+        self.dy = -round(math.cos(math.radians(self.angle)), 2)
+
+        self.x += self.dx * 5
+        self.y += self.dy * 5
+
+        self.ticks += 1
+
+
+
+    def render(self, screen):
+        frame, rect = rotate(self.frames[int(self.active_frame) - 1], self.angle, self.x, self.y)
+
+        screen.blit(frame, rect)
