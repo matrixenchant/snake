@@ -111,7 +111,7 @@ class Level(View):
                     self.pause()
                     
                 # next stage
-                else:
+                elif self.snake.speed < 5:
                     self.snake.speed += 0.5
                     self.snake.nextStage()
 
@@ -296,12 +296,15 @@ class Level5(Level):
         ]
         self.stage = 1
 
+        self.portalActive = False
+
     def isWin(self):
         return False
     
     @Level.baseUpdate
     def update(self):
-        if self.stage == 1:
+
+        if self.stage == 1 and self.portalActive:
             portalCollide = pygame.Rect.collidelist(self.snake.get_rect(), [pygame.Rect(707, 94, 34, 78)])
             if portalCollide != -1:
                 self.stage = 2
@@ -311,7 +314,7 @@ class Level5(Level):
                 self.objects = [
                     AnimatedObject(0, 67, 'level5/portal', 9, 5, angle=180),
                 ]
-        elif self.stage == 2:
+        elif self.stage == 2 and self.portalActive:
             portalCollide = pygame.Rect.collidelist(self.snake.get_rect(), [pygame.Rect(43, 88, 34, 78)])
             if portalCollide != -1:                    
                 self.stage = 1

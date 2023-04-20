@@ -156,6 +156,7 @@ class AnimatedObject(pygame.sprite.Sprite):
         self.active_frame = 1
         self.loop = loop
         self.angle = angle
+        self.scale = 1
 
         self.isForward = isForward
         self.isReverse = False
@@ -186,7 +187,11 @@ class AnimatedObject(pygame.sprite.Sprite):
                 else: self.active_frame = 1
 
     def render(self, screen):
-        screen.blit(self.frames[int(self.active_frame) - 1], (self.x, self.y))
+        frame = self.frames[int(self.active_frame) - 1]
+        scale = 1
+        
+        w, h = self.rect.width, self.rect.height
+        screen.blit(pygame.transform.scale(frame, (w * scale, h * scale)), (self.x + (w * scale)/2, self.y + (h * scale)/2 ))
 
     def get_rect(self):
         return self.rect
@@ -240,30 +245,35 @@ import math
 class Enemy(AnimatedObject):
     def __init__(self, x, y, path, framesNumber, animationSpeed, loop=False, angle=0, isForward=False):
         super().__init__(x, y, path, framesNumber, animationSpeed, loop, angle, isForward)
-        self.angle = 0
+        self.angle = 45
 
-        self.angleTarget = 0
+        self.angleTarget = 45
         self.changeTargetDelay = randint(80, 100)
         
         self.dx = 0
         self.dy = 0
         self.ticks = 0
 
+        self.edgeOffset = 100
+
     def update(self):
         super().update()
 
-        if self.y < 0 or self.x < 0:
-            print('Out -Y')
-            self.angle = 180-self.angle
-
         # if self.ticks % self.changeTargetDelay == 0:
         #     self.angleTarget = randint(0, 360)
-        #     self.changeTargetDelay = randint(80, 100)
+        #     self.changeTargetDelay = randint(300, 400)
+        #     print(self.angleTarget)
+
+        if self.y + self.edgeOffset < 0 or self.y > 600 + self.edgeOffset:
+            self.angle = 180-self.angle
+            
+        if self.x + self.edgeOffset < 0 or self.x > 800 + self.edgeOffset:
+            self.angle = 360-self.angle
         
-        if self.angleTarget - self.angle > 0:
-            self.angle += 2
-        elif self.changeTargetDelay - self.angle < 0:
-            self.angle -= 2
+        # if self.angleTarget - self.angle > 0:
+        #     self.angle += 4
+        # elif self.changeTargetDelay - self.angle < 0:
+        #     self.angle -= 4
 
         self.dx = -round(math.sin(math.radians(self.angle)), 2)
         self.dy = -round(math.cos(math.radians(self.angle)), 2)
