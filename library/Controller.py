@@ -65,6 +65,7 @@ class Controller():
         self.activatePopup('defeat')
 
     def win(self):
+        print('win')
         level = self.getActiveView().level
         if self.user['max_lvl'] == level:
             self.user['max_lvl'] += 1
@@ -75,10 +76,4 @@ class Controller():
 
     def restart(self):
         self.getActiveView().restart()
-
-    def pause(self):
-        pass
-
-    def resume(self):
-        pass
         

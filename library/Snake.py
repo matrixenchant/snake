@@ -60,7 +60,7 @@ class Snake:
         self.isGhostBlinking = False
         self.ghostTime = None
 
-        self.withHelmet = True
+        self.withHelmet = False
 
         self.isGrowing = False
         self.isStopped = False
@@ -79,6 +79,9 @@ class Snake:
             if event.key in [pygame.K_UP, pygame.K_w] and self.dy != 1: self.set_direction('up')
             if event.key in [pygame.K_DOWN, pygame.K_s] and self.dy != -1: self.set_direction('down')
 
+            # Cheats
+            if event.key == pygame.K_g: self.giveGhostEffect()
+
     def set_direction(self, dir):
         if dir == 'left':
             self.dx = -1
@@ -92,6 +95,11 @@ class Snake:
         elif dir == 'down':
             self.dx = 0
             self.dy = 1
+
+    def collide(self):
+        if self.isGhost: return
+        self.withHelmet = False
+        self.isCollide = True
 
     def render(self, screen):
         if not self.isShow: return
@@ -171,7 +179,7 @@ class Snake:
         if x < self.radius or x > 800 - self.radius: print('stuck x'); self.isCollide = True
         if y < self.radius or y > 600 - self.radius: print('stuck y'); self.isCollide = True
 
-        if self.check_self_collision() != -1 and not self.isGhost: self.isCollide = True
+        if self.check_self_collision() != -1: self.collide()
 
         for i in range(int(self.speed)):
             # Move main part (head)
@@ -222,10 +230,9 @@ class Snake:
         if self.stage >= len(self.stages)-1: return
 
         stage = self.stage + 1
+        self.changeStage(stage)
         if stage == len(self.stages)-1:
             self.enableRainbow()
-        else:
-            self.changeStage(stage)
             
 
     def check_self_collision(self):

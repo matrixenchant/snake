@@ -28,7 +28,8 @@ clock = pygame.time.Clock()
 controller = Controller(startView='start', config={
     'WIDTH': WIDTH,
     'HEIGHT': HEIGHT,
-    'SCORE_TARGET': 2
+    'SCORE_TARGET': 2,
+    'clock': clock
 })
 
 controller.setViews([

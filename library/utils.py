@@ -1,7 +1,7 @@
 from os import sep
 
 import pygame
-from random import randint
+from random import randint, choice
 from time import sleep
 
 # Images
@@ -146,7 +146,7 @@ class Object:
         screen.blit(get_image(self.image), (self.x, self.y))
 
 class AnimatedObject(pygame.sprite.Sprite):
-    def __init__(self, x, y, path, framesNumber, animationSpeed, loop = False, angle = 0, isForward = False):
+    def __init__(self, x, y, path, framesNumber, animationSpeed, loop = False, angle = 0, isForward = False, scale = 1):
         pygame.sprite.Sprite.__init__(self)
         self.x = x
         self.y = y
@@ -156,7 +156,7 @@ class AnimatedObject(pygame.sprite.Sprite):
         self.active_frame = 1
         self.loop = loop
         self.angle = angle
-        self.scale = 1
+        self.scale = scale
 
         self.isForward = isForward
         self.isReverse = False
@@ -188,10 +188,14 @@ class AnimatedObject(pygame.sprite.Sprite):
 
     def render(self, screen):
         frame = self.frames[int(self.active_frame) - 1]
-        scale = 1
+        rect = (self.x, self.y)
         
         w, h = self.rect.width, self.rect.height
-        screen.blit(pygame.transform.scale(frame, (w * scale, h * scale)), (self.x + (w * scale)/2, self.y + (h * scale)/2 ))
+        if self.scale != 1:
+            frame = pygame.transform.scale(frame, (w * self.scale, h * self.scale))
+            rect = (self.x + (w * (1-self.scale))/2, self.y + (h * (1-self.scale))/2 )
+            
+        screen.blit(frame, rect)
 
     def get_rect(self):
         return self.rect
@@ -283,9 +287,56 @@ class Enemy(AnimatedObject):
 
         self.ticks += 1
 
-
-
     def render(self, screen):
         frame, rect = rotate(self.frames[int(self.active_frame) - 1], self.angle, self.x, self.y)
-
+        self.rect = rect.inflate(-45, -45)
+        #pygame.draw.rect(screen, (255, 0, 0), self.rect, width=2)
         screen.blit(frame, rect)
+
+    def get_rect(self):
+        return self.rect
+
+
+class Aster(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+
+        aster_image = choice(['big1', 'big2', 'med1', 'med2', 'med3', 'med4', 'small1', 'small2', 'tiny1', 'tiny2', 'tiny3'])
+        self.image = get_image(f'assets/level5/aster/{aster_image}.png')
+
+        self.x = randint(-100, 900)
+        self.y = choice([randint(-200, -100), randint(700, 800)])
+
+        self.rect = self.image.get_rect(x=self.x, y=self.y)
+
+        self.speed = randint(10, 20) / 10
+        self.angle = 0
+        self.last = pygame.time.get_ticks()
+
+        # calculate vector of speed to random center
+        self.dx = randint(300, 500) - self.x
+        self.dy = randint(200, 400) - self.y
+
+        vec_len = math.sqrt(self.dx ** 2 + self.dy ** 2)
+        self.dx /= vec_len
+        self.dy /= vec_len
+
+    def update(self):
+        now = pygame.time.get_ticks()
+        if now - self.last >= 6000:
+            self.kill()
+
+        if self.angle >= 360: self.angle = 0
+        else: self.angle += self.speed
+
+        self.x += self.dx * self.speed * 2
+        self.y += self.dy * self.speed * 2
+
+    def render(self, screen):
+        frame, rect = rotate(self.image, self.angle, self.x, self.y)
+        self.rect = rect.inflate(-20, -20)
+        #pygame.draw.rect(screen, (255, 0, 0), self.rect, width=2)
+        screen.blit(frame, rect)
+
+    def get_rect(self):
+        return self.rect
