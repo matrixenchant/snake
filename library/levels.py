@@ -117,7 +117,6 @@ class Level(View):
                     
                 # next stage
                 elif self.snake.speed < 5:
-                    self.snake.speed += 0.5
                     self.snake.nextStage()
 
         return wrapper

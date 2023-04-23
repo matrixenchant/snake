@@ -1,9 +1,9 @@
 import random
 import time
 
-from .utils import get_image, rotate
-
 import pygame
+
+from .utils import get_image, rotate
 
 STAGES = [
     {
@@ -72,6 +72,7 @@ class Snake:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 self.isGrowing = True
+                self.nextStage()
             
             # Control
             if event.key in [pygame.K_LEFT, pygame.K_a] and self.dx != 1: self.set_direction('left')
@@ -164,9 +165,9 @@ class Snake:
         # Ghost timeout
         if self.isGhost:
             diff = time.time() - self.ghostTime
-            if int(diff) > 10:
+            if int(diff) > 5:
                 self.isGhost = False
-            elif int(diff) > 8 and round(diff, 1) % 0.5 == 0:
+            elif int(diff) > 3 and round(diff, 1) % 0.5 == 0:
                 self.isGhostBlinking = True
             else:
                 self.isGhostBlinking = False
@@ -229,6 +230,7 @@ class Snake:
     def nextStage(self):
         if self.stage >= len(self.stages)-1: return
 
+        self.speed += 0.5
         stage = self.stage + 1
         self.changeStage(stage)
         if stage == len(self.stages)-1:
