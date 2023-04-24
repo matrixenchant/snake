@@ -1,8 +1,8 @@
 from os import sep
+from random import choice, randint
+from time import sleep
 
 import pygame
-from random import randint, choice
-from time import sleep
 
 # Images
 _image_library = {}
@@ -64,6 +64,8 @@ class InputBox:
         self.outline = outline
 
     def handle_event(self, event):
+        if len(self.text) > 9: return
+
         if event.type == pygame.MOUSEBUTTONDOWN:
             # If the user clicked on the input_box rect.
             if self.rect.collidepoint(event.pos):
@@ -261,6 +263,8 @@ class Projectile(AnimatedObject):
         return pygame.Rect(self.x, self.y, self.width, self.height)
 
 import math
+
+
 class Enemy(AnimatedObject):
     def __init__(self, x, y, path, framesNumber, animationSpeed, loop=False, angle=0, isForward=False):
         super().__init__(x, y, path, framesNumber, animationSpeed, loop, angle, isForward)

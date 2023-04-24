@@ -16,7 +16,7 @@ In the final level, you must go through all the stages of the snake and enter th
 
 ---
 
-#### Hotkeys
+#### Cheats
 
 `Space` - increases the stage of the snake, but not points
 

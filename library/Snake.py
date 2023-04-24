@@ -109,6 +109,10 @@ class Snake:
             color = self.color_body
             head = self.color_head
 
+            if (self.isRainbow):
+                color = random.choices(range(256), k=3)
+                head = random.choices(range(256), k=3)
+
             if (self.isGhost and not self.isGhostBlinking):
                 color = GHOST_COLOR[1]
                 head = GHOST_COLOR[0]
@@ -116,10 +120,7 @@ class Snake:
             # Head
             if i < 5: color = (255, 0, 0) if self.isCollide else head
 
-            if self.isRainbow:
-                pygame.draw.circle(screen, random.choices(range(256), k=3), self.parts[i], self.radius)
-            else:
-                pygame.draw.circle(screen, color, self.parts[i], self.radius)
+            pygame.draw.circle(screen, color, self.parts[i], self.radius)
 
             if self.withHelmet:
                 size = 30
