@@ -66,7 +66,7 @@ class Food(pygame.sprite.Sprite):
 
     def update(self):
         if not self.is_update: return
-        if int(time.time()) - self.spawnTime > 5:
+        if int(time.time()) - self.spawnTime > 6:
             self.kill()
 
     def get_rect(self):

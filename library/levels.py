@@ -26,7 +26,7 @@ class Level(View):
         # Init food timer
         self.SPAWN_FOOD = pygame.USEREVENT + 1
         self.allowSpawnFood = True
-        pygame.time.set_timer(self.SPAWN_FOOD, 2000)
+        pygame.time.set_timer(self.SPAWN_FOOD, 4000)
 
         self.background = get_image('assets/level1/back.png')
         
