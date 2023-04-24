@@ -138,12 +138,12 @@ class Object:
     def __init__(self, x, y, image):
         self.x = x
         self.y = y
-        self.image = image
+        self.image = get_image(image)
 
     def update(self): pass
 
     def render(self, screen):
-        screen.blit(get_image(self.image), (self.x, self.y))
+        screen.blit(self.image, (self.x, self.y))
 
 class AnimatedObject(pygame.sprite.Sprite):
     def __init__(self, x, y, path, framesNumber, animationSpeed, loop = False, angle = 0, isForward = False, scale = 1):
@@ -199,6 +199,21 @@ class AnimatedObject(pygame.sprite.Sprite):
 
     def get_rect(self):
         return self.rect
+    
+class Saw(Object):
+    def __init__(self, x, y, range, speed = 5):
+        super().__init__(x, y, 'assets/level4/saw.png')
+        self.range = range
+        self.speed = speed
+        self.dx = 1
+
+    def update(self):
+        if self.x >= self.range[1]: self.dx = -1
+        elif self.x <= self.range[0]: self.dx = 1
+        self.x += self.dx * self.speed
+
+    def get_rect(self):
+        return self.image.get_rect(x=self.x, y=self.y)
 
 class ProjectileEmitter:
     def __init__(self, x, y, image, projectilesPath):
@@ -208,7 +223,7 @@ class ProjectileEmitter:
 
         self.projectiles = pygame.sprite.Group()
         self.last = pygame.time.get_ticks()
-        self.cooldown = 2500
+        self.cooldown = 3500
         self.image = image
         self.projectilesPath = projectilesPath
 
@@ -323,7 +338,7 @@ class Aster(pygame.sprite.Sprite):
 
     def update(self):
         now = pygame.time.get_ticks()
-        if now - self.last >= 6000:
+        if now - self.last >= 10000:
             self.kill()
 
         if self.angle >= 360: self.angle = 0

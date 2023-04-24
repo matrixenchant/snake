@@ -1,10 +1,13 @@
-import pygame
 from random import randint
-from .views import View
-from .utils import get_image, AnimatedObject, ProjectileEmitter, Object, Enemy, Aster
 
-from .Snake import Snake
+import pygame
+
 from .Food import Food
+from .Snake import Snake
+from .utils import (AnimatedObject, Aster, Enemy, Object, ProjectileEmitter, Saw,
+                    get_image)
+from .views import View
+
 
 class Level(View):
     def __init__(self, slug, level, controller):
@@ -173,6 +176,13 @@ class Level1(Level):
             pygame.Rect(573, 264, 118, 68),
             pygame.Rect(156, 455, 103, 60)
         ]
+        self.foodArea = [
+            pygame.Rect(20, 67, 763, 82),
+            pygame.Rect(28, 239, 293, 191),
+            pygame.Rect(585, 380, 197, 196),
+            pygame.Rect(345, 149, 197, 427),
+            pygame.Rect(703, 149, 80, 231),
+        ]
         self.objects = [
             Object(184, 152, 'assets/level1/obs1.png'),
             Object(573, 211, 'assets/level1/obs2.png'),
@@ -192,6 +202,13 @@ class Level2(Level):
             pygame.Rect(508, 239, 166, 28),
             pygame.Rect(508, 366, 166, 28),
             pygame.Rect(667, 516, 68, 47),
+        ]
+        self.foodArea = [
+            pygame.Rect(279, 153, 197, 427),
+            pygame.Rect(20, 347, 259, 233),
+            pygame.Rect(476, 435, 159, 145),
+            pygame.Rect(442, 61, 259, 81),
+            pygame.Rect(701, 61, 85, 427),
         ]
         self.objects = [
             Object(78, 75, 'assets/level2/obs1.png'),
@@ -284,9 +301,17 @@ class Level4(Level):
         self.objects = [
             Object(0, 533, 'assets/level4/bottom_wall.png'),
             AnimatedObject(40, 106, 'level4/fire', 24, 5),
+            Saw(41, 354, (41, 360)),
+            Saw(629, 389, (448, 720)),
         ]
 
-import math
+    @Level.baseUpdate
+    def update(self):
+        sawCollide = pygame.Rect.collidelist(self.snake.get_rect(), [x.get_rect() for x in self.objects[-2:]])
+        if sawCollide != -1:
+            self.snake.collide()
+
+
 class Level5(Level):
     def __init__(self, slug, level, controller):
         super().__init__(slug, level, controller)
@@ -367,6 +392,8 @@ class Level5(Level):
             if portalCollide != -1:
                 self.stage = 2
                 self.snake.teleportTo(95, 124)
+                self.foods.empty()
+                self.allowSpawnFood = False
                     
                 self.background = get_image('assets/level5/back2.png')
                 self.portal = AnimatedObject(0, 67, 'level5/portal', 9, 5, angle=180)
@@ -418,8 +445,6 @@ class Level5(Level):
             if portalCollide != -1:                    
                 self.stage = 1
                 self.snake.teleportTo(695, 131)
-                self.foods.empty()
-                self.allowSpawnFood = False
 
                 self.portal = AnimatedObject(664, 71, 'level5/portal', 9, 5)
                 self.background = get_image('assets/level5/back1.png')

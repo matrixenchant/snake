@@ -194,7 +194,7 @@ class Snake:
 
         self.liveTime += 1
 
-    def grow(self, size = 20):
+    def grow(self, size = 80):
         self.size += size
         self.parts.extend(list([-100,-100] for i in range(size)))
         self.isGrowing = False

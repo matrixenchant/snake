@@ -12,16 +12,19 @@ table_template = (
 )
 
 conn = None
+
+
 def init():
     global tables, conn
     try:
-        conn = sqlite3.connect('./database.db')
+        conn = sqlite3.connect('database.db')
 
         # create tables
         cur = conn.cursor()
-        cur = cur.execute(f'SELECT name FROM sqlite_master WHERE name = "{table_name}"')
+        cur = cur.execute(
+            f'SELECT name FROM sqlite_master WHERE name = "{table_name}"')
         isExists = cur.fetchone()
-        
+
         if not isExists:
             cur.execute(table_template)
             conn.commit()
@@ -32,6 +35,7 @@ def init():
         print('Error with connection!')
         print(str(e))
         exit()
+
 
 def add_user(data):
     global conn
@@ -54,6 +58,7 @@ def add_user(data):
         print(str(e))
         exit()
 
+
 def update_user(id, lvl):
     global conn
     try:
@@ -71,6 +76,7 @@ def update_user(id, lvl):
         print('Error with database!')
         print(str(e))
         exit()
+
 
 def get_users():
     global conn
@@ -93,6 +99,7 @@ def get_users():
         print('Error with database!')
         print(str(e))
         exit()
+
 
 def close():
     conn.close()
